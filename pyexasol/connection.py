@@ -177,7 +177,7 @@ class ExaConnection(object):
 
         address = script_output.get_output_address()
         parts = str(address).split(':')
-        self.execute("ALTER SESSION SET SCRIPT_OUTPUT_ADDRESS = '{address}'", {'address': f'172.17.0.1:{parts[1]}'})
+        self.execute("ALTER SESSION SET SCRIPT_OUTPUT_ADDRESS = {address}", {'address': f'172.17.0.1:{parts[1]}'})
 
         try:
             stmt = self.execute(query, query_params)

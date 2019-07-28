@@ -7,12 +7,18 @@ Exasol should be able to open connection to the host where current script is run
 
 import pyexasol
 import _config as config
+import os
 
 import pprint
 printer = pprint.PrettyPrinter(indent=4, width=140)
 
+# Custom hostname is requires for this example to work in travis
+# You may avoid setting 'udf_output_host' if your host is available for incoming connection from Exasol
+is_travis = 'TRAVIS' in os.environ
+
 C = pyexasol.connect(dsn=config.dsn, user=config.user, password=config.password, schema=config.schema,
-                     query_timeout=5)
+                     query_timeout=5, udf_output_host='host.docker.internal' if is_travis else None)
+
 
 stmt, log_files = C.execute_udf_output("""
     SELECT echo_java(user_id)

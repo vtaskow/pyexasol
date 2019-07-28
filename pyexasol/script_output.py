@@ -41,8 +41,9 @@ from . import utils
 
 class ExaScriptOutputProcess(object):
     def __init__(self, host, port, output_dir=None, initial_ppid=None):
-        self.host = host
-        self.port = port
+        self.host = host if host else socket.gethostbyname(socket.getfqdn())
+        self.port = port if port else 0
+
         self.output_dir = output_dir
         self.initial_ppid = initial_ppid
 
@@ -132,7 +133,7 @@ class ExaScriptOutputServer(socketserver.ThreadingMixIn, socketserver.TCPServer)
     initial_ppid = None
 
     def get_output_address(self):
-        return f"{socket.gethostbyname(socket.getfqdn())}:{self.socket.getsockname()[1]}"
+        return f"{self.server_address[0]}:{self.socket.getsockname()[1]}"
 
     def service_actions(self):
         utils.check_orphaned(self.initial_ppid)

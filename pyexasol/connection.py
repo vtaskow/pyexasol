@@ -172,7 +172,7 @@ class ExaConnection(object):
         self.udf_output_count += 1
         output_dir = utils.get_output_dir_for_statement(self.udf_output_dir, self.session_id(), self.udf_output_count)
 
-        script_output = ExaScriptOutputProcess(self.udf_output_host, self.udf_output_host, output_dir)
+        script_output = ExaScriptOutputProcess(self.udf_output_host, self.udf_output_port, output_dir)
         script_output.start()
 
         address = script_output.get_output_address()

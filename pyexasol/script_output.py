@@ -132,8 +132,16 @@ class ExaScriptOutputServer(socketserver.ThreadingMixIn, socketserver.TCPServer)
     output_dir = None
     initial_ppid = None
 
+    original_host = None
+
+    def server_bind(self):
+        # Server address will be overwritten after server_bind()
+        # But we want to preserve original value for SCRIPT_OUTPUT_ADDRESS in SQL
+        self.original_host = self.server_address[0]
+        super().server_bind()
+
     def get_output_address(self):
-        return f"{self.server_address[0]}:{self.socket.getsockname()[1]}"
+        return f"{self.original_host}:{self.socket.getsockname()[1]}"
 
     def service_actions(self):
         utils.check_orphaned(self.initial_ppid)

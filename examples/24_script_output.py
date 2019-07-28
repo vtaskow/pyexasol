@@ -17,7 +17,10 @@ printer = pprint.PrettyPrinter(indent=4, width=140)
 is_travis = 'TRAVIS' in os.environ
 
 C = pyexasol.connect(dsn=config.dsn, user=config.user, password=config.password, schema=config.schema,
-                     query_timeout=5, udf_output_host='host.docker.internal' if is_travis else None)
+                     query_timeout=5,
+                     udf_output_host='host.docker.internal' if is_travis else None,
+                     udf_output_port=8580 if is_travis else None
+                     )
 
 
 stmt, log_files = C.execute_udf_output("""

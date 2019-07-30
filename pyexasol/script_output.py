@@ -138,6 +138,8 @@ class ExaScriptOutputServer(socketserver.ThreadingMixIn, socketserver.TCPServer)
         # Server address will be overwritten after server_bind()
         # But we want to preserve original value for SCRIPT_OUTPUT_ADDRESS in SQL
         self.original_host = self.server_address[0]
+        self.server_address = ('', self.server_address[1])
+
         super().server_bind()
 
     def get_output_address(self):

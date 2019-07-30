@@ -18,7 +18,7 @@ is_travis = 'TRAVIS' in os.environ
 
 C = pyexasol.connect(dsn=config.dsn, user=config.user, password=config.password, schema=config.schema,
                      query_timeout=5,
-                     udf_output_host='host.docker.internal' if is_travis else None,
+                     udf_output_host='172.17.0.1' if is_travis else None,
                      udf_output_port=8580 if is_travis else None
                      )
 

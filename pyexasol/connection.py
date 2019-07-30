@@ -88,8 +88,8 @@ class ExaConnection(object):
         :param verbose_error: Display additional information when error occurs (Default: True)
         :param debug: Output debug information for client-server communication and connection attempts to STDERR
         :param debug_logdir: Store debug information into files in debug_logdir instead of outputting it to STDERR
-        :param udf_output_bind_address: Specific server_address to bind TCPServer for UDF script output (default: ('', 0))
-        :param udf_output_connect_address: Specific SCRIPT_OUTPUT_ADDRESS value to be used for UDF script output (default: inherited from TCPServer)
+        :param udf_output_bind_address: Specific server_address to bind TCP server for UDF script output (default: ('', 0))
+        :param udf_output_connect_address: Specific SCRIPT_OUTPUT_ADDRESS value to connect from Exasol to UDF script output server (default: inherited from TCP server)
         :param udf_output_dir: Directory to store captured UDF script output logs, split by <session_id>_<statement_id>/<vm_num>
         :param http_proxy: HTTP proxy string in Linux http_proxy format (default: None)
         :param client_name: Custom name of client application displayed in Exasol sessions tables (Default: PyEXASOL)

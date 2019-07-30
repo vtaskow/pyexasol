@@ -41,8 +41,8 @@ from . import utils
 
 class ExaScriptOutputProcess(object):
     def __init__(self, host, port, output_dir=None, initial_ppid=None):
-        self.host = host if host else socket.gethostbyname(socket.getfqdn())
-        self.port = port if port else 0
+        self.host = host
+        self.port = port
 
         self.output_dir = output_dir
         self.initial_ppid = initial_ppid
@@ -132,18 +132,8 @@ class ExaScriptOutputServer(socketserver.ThreadingMixIn, socketserver.TCPServer)
     output_dir = None
     initial_ppid = None
 
-    original_host = None
-
-    def server_bind(self):
-        # Server address will be overwritten after server_bind()
-        # But we want to preserve original value for SCRIPT_OUTPUT_ADDRESS in SQL
-        self.original_host = self.server_address[0]
-        self.server_address = ('', self.server_address[1])
-
-        super().server_bind()
-
     def get_output_address(self):
-        return f"{self.original_host}:{self.socket.getsockname()[1]}"
+        return f"{socket.getfqdn()}:{self.socket.getsockname()[1]}"
 
     def service_actions(self):
         utils.check_orphaned(self.initial_ppid)

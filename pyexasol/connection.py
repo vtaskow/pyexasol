@@ -175,8 +175,9 @@ class ExaConnection(object):
         script_output = ExaScriptOutputProcess(self.udf_output_bind_address[0], self.udf_output_bind_address[1], output_dir)
         script_output.start()
 
+        # This option is useful to get around complex network setups, like Exasol running in Docker containers
         if self.udf_output_connect_address:
-            address = ':'.join(self.udf_output_connect_address)
+            address = f"{self.udf_output_connect_address[0]}:{self.udf_output_connect_address[1]}"
         else:
             address = script_output.get_output_address()
 

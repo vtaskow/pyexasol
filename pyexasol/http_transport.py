@@ -266,7 +266,7 @@ class ExaHTTPTransportWrapper(object):
             result = callback(self.http_proc.read_pipe, dst, **callback_params)
 
             self.http_proc.read_pipe.close()
-            self.http_proc.join()
+            self.http_proc.join_with_exc()
 
             return result
         except Exception as e:
@@ -286,7 +286,7 @@ class ExaHTTPTransportWrapper(object):
             result = callback(self.http_proc.write_pipe, src, **callback_params)
 
             self.http_proc.write_pipe.close()
-            self.http_proc.join()
+            self.http_proc.join_with_exc()
 
             return result
         except Exception as e:

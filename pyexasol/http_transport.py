@@ -39,7 +39,7 @@ class ExaSQLThread(threading.Thread):
     def run_sql(self):
         pass
 
-    def join(self, *args):
+    def join_with_exc(self, *args):
         super().join(*args)
 
         if self.exc:
@@ -214,7 +214,7 @@ class ExaHTTPProcess(object):
         self.read_pipe = self.proc.stdout
         self.write_pipe = self.proc.stdin
 
-    def join(self):
+    def join_with_exc(self):
         self.read_pipe.close()
         self.write_pipe.close()
 
@@ -225,7 +225,11 @@ class ExaHTTPProcess(object):
 
     def terminate(self):
         if self.proc:
+            self.read_pipe.close()
+            self.write_pipe.close()
+
             self.proc.terminate()
+            self.proc.wait()
 
     def get_proxy(self):
         if self.proxy is None:

@@ -281,28 +281,36 @@ class ExaConnection(object):
         if query_params is not None:
             query_or_table = self.format.format(query_or_table, **query_params)
 
-        try:
-            http_proc = ExaHTTPProcess(self.ws_host, self.ws_port, compression, self.options['encryption'], HTTP_EXPORT)
-            http_proc.start()
+        http_proc = ExaHTTPProcess(self.ws_host, self.ws_port, compression, self.options['encryption'], HTTP_EXPORT)
+        http_proc.start()
 
-            sql_thread = ExaSQLExportThread(self, http_proc.get_proxy(), compression, query_or_table, export_params)
-            sql_thread.set_http_proc(http_proc)
+        sql_thread = ExaSQLExportThread(self, http_proc.get_proxy(), compression, query_or_table, export_params)
+        sql_thread.set_http_proc(http_proc)
+
+        try:
             sql_thread.start()
 
             result = callback(http_proc.read_pipe, dst, **callback_params)
             http_proc.read_pipe.close()
 
-            http_proc.join()
-            sql_thread.join()
+            http_proc.join_with_exc()
+            sql_thread.join_with_exc()
 
             return result
         except Exception as e:
-            # Close HTTP Server if it is still running
-            if 'http_proc' in locals():
-                http_proc.terminate()
+            # Terminate HTTP Server if it is still running
+            http_proc.terminate()
+
+            # Try to join SQL thread, but no longer than 1 second
+            sql_thread.join(1)
+
+            # If SQL thread is still running somehow, abort query and join again
+            if sql_thread.is_alive():
+                self.abort_query()
+                sql_thread.join()
 
             # Give higher priority to SQL thread exception
-            if 'sql_thread' in locals() and sql_thread.exc:
+            if sql_thread.exc:
                 raise sql_thread.exc
 
             raise e
@@ -324,28 +332,36 @@ class ExaConnection(object):
         if not callable(callback):
             raise ValueError('Callback argument is not callable')
 
-        try:
-            http_proc = ExaHTTPProcess(self.ws_host, self.ws_port, compression, self.options['encryption'], HTTP_IMPORT)
-            http_proc.start()
+        http_proc = ExaHTTPProcess(self.ws_host, self.ws_port, compression, self.options['encryption'], HTTP_IMPORT)
+        http_proc.start()
 
-            sql_thread = ExaSQLImportThread(self, http_proc.get_proxy(), compression, table, import_params)
-            sql_thread.set_http_proc(http_proc)
+        sql_thread = ExaSQLImportThread(self, http_proc.get_proxy(), compression, table, import_params)
+        sql_thread.set_http_proc(http_proc)
+
+        try:
             sql_thread.start()
 
             result = callback(http_proc.write_pipe, src, **callback_params)
             http_proc.write_pipe.close()
 
-            http_proc.join()
-            sql_thread.join()
+            http_proc.join_with_exc()
+            sql_thread.join_with_exc()
 
             return result
         except Exception as e:
-            # Close HTTP Server if it is still running
-            if 'http_proc' in locals():
-                http_proc.terminate()
+            # Terminate HTTP Server if it is still running
+            http_proc.terminate()
+
+            # Try to join SQL thread, but no longer than 1 second
+            sql_thread.join(1)
+
+            # If SQL thread is still running somehow, abort query and join again
+            if sql_thread.is_alive():
+                self.abort_query()
+                sql_thread.join()
 
             # Give higher priority to SQL thread exception
-            if 'sql_thread' in locals() and sql_thread.exc:
+            if sql_thread.exc:
                 raise sql_thread.exc
 
             raise e
